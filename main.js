@@ -1,4 +1,7 @@
 import "./style.css";
+import { inject } from "@vercel/analytics";
+
+inject();
 
 // Constants
 const MAX_DURATION = 12 * 60 * 60; // 12 hours in seconds
