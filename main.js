@@ -17,6 +17,7 @@ const REPO_CONFIG = {
   },
   "Kong/kongponents": {
     branch: "main",
+    workflow: "Publish",
   },
   "Kong/kong-admin": {
     branch: "master",
@@ -231,14 +232,17 @@ function render() {
   const successCount = filteredData.filter(
     (item) => item.status === "success"
   ).length;
+  const successRerunCount = filteredData.filter(
+    (item) => item.status === "success" && item.attempt !== 1
+  ).length;
   const failureCount = filteredData.filter(
     (item) => item.status === "failure"
   ).length;
-  const failureRatio =
+  const failureRate =
     showStatus.success &&
     showStatus.failure &&
     successCount + failureCount !== 0
-      ? failureCount / (successCount + failureCount)
+      ? (failureCount + successRerunCount) / (successCount + failureCount)
       : null;
 
   filteredData.forEach((item) => {
@@ -277,7 +281,7 @@ function render() {
   });
 
   failureRateElement.textContent = `Failure Rate: ${
-    failureRatio == null ? "N/A" : `${(failureRatio * 100).toFixed(1)}%`
+    failureRate == null ? "N/A" : `${(failureRate * 100).toFixed(1)}%`
   }`;
 }
 

@@ -316,7 +316,10 @@ main.loading .loader {
   }
 }
 
-#failure-rate {
+#stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   position: absolute;
   right: 0;
   bottom: calc(100% + 8px);
