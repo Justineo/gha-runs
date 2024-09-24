@@ -97,6 +97,7 @@ function buildHeaders() {
 }
 
 const tokenInput = document.getElementById("github-token-input");
+const dialog = document.getElementById("pat");
 
 async function fetchRuns() {
   const baseUrl = `https://api.github.com/repos/${repository}/actions/runs`;
@@ -108,54 +109,64 @@ async function fetchRuns() {
   });
   const pages = [1, 2, 3, 4, 5, 6];
 
-  GITHUB_TOKEN = localStorage.getItem("GITHUB_TOKEN") || "";
-
-  if (!GITHUB_TOKEN) {
-    const dialog = document.getElementById("pat");
-    dialog.showModal();
-
-    return new Promise((resolve) => {
-      dialog.addEventListener("cancel", (event) => {
-        tokenInput.focus();
-      });
-      dialog.addEventListener("close", async () => {
-        if (tokenInput && tokenInput.value) {
-          GITHUB_TOKEN = tokenInput.value;
-          localStorage.setItem("GITHUB_TOKEN", GITHUB_TOKEN);
-          const runs = await fetchRuns(); // Retry fetching runs after token is provided
-
-          resolve(runs);
-        } else {
-          resolve([]);
-        }
-      });
+  async function fetchPage(page) {
+    params.set("page", page.toString());
+    const url = `${baseUrl}?${params.toString()}`;
+    const response = await fetch(url, {
+      headers: buildHeaders(),
+      cache: "no-store",
     });
+    if (!response.ok) {
+      throw new Error(`Error fetching page ${page}: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.workflow_runs || [];
   }
 
-  try {
-    const fetchPage = async (page) => {
-      params.set("page", page.toString());
-      const url = `${baseUrl}?${params.toString()}`;
-      const response = await fetch(url, {
-        headers: buildHeaders(),
-        cache: "no-store",
-      });
-      if (!response.ok) {
-        throw new Error(`Error fetching page ${page}: ${response.statusText}`);
-      }
-      const data = await response.json();
-      return data.workflow_runs || [];
-    };
-
+  async function fetchAllPages() {
     const results = await Promise.all(pages.map(fetchPage));
     const runs = results.flat();
     if (config.workflow) {
       return runs.filter((run) => run.name === config.workflow);
     }
     return runs;
+  }
+
+  async function getTokenAndFetch() {
+    return new Promise((resolve) => {
+      dialog.showModal();
+
+      async function handleClose() {
+        dialog.removeEventListener("close", handleClose);
+        if (tokenInput && tokenInput.value) {
+          GITHUB_TOKEN = tokenInput.value;
+          localStorage.setItem("GITHUB_TOKEN", GITHUB_TOKEN);
+
+          try {
+            resolve(await fetchAllPages());
+          } catch (error) {
+            console.error("Error fetching data:", error);
+            resolve(await getTokenAndFetch());
+          }
+        } else {
+          resolve([]);
+        }
+      }
+      dialog.addEventListener("close", handleClose);
+    });
+  }
+
+  GITHUB_TOKEN = localStorage.getItem("GITHUB_TOKEN") || "";
+
+  if (!GITHUB_TOKEN) {
+    return getTokenAndFetch();
+  }
+
+  try {
+    return await fetchAllPages();
   } catch (error) {
     console.error("Error fetching data:", error);
-    return [];
+    return await getTokenAndFetch();
   }
 }
 
@@ -224,7 +235,9 @@ function render() {
     (item) => item.status === "failure"
   ).length;
   const failureRatio =
-    showStatus.success && showStatus.failure
+    showStatus.success &&
+    showStatus.failure &&
+    successCount + failureCount !== 0
       ? failureCount / (successCount + failureCount)
       : null;
 
