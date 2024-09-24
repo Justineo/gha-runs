@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="https://kongponents.konghq.com/favicon.ico"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recent GitHub Actions Workflow runs</title>
+  </head>
+  <body>
+    <h1>Recent GitHub Actions Workflow runs</h1>
+    <dl class="desc">
+      <dt>Last update:</dt>
+      <dd><time id="update-time"></time></dd>
+    </dl>
+    <section class="controls">
+      <label
+        ><input type="checkbox" id="filter-success" checked />Success</label
+      >
+      <label
+        ><input type="checkbox" id="filter-failure" checked />Failure</label
+      >
+      <label><input type="checkbox" id="filter-cancelled" />Cancelled</label>
+      <label><input type="checkbox" id="filter-pending" />Pending</label>
+      <label
+        ><input type="checkbox" id="filter-in-progress" />In Progress</label
+      >
+    </section>
+    <section class="controls">
+      <label
+        ><input type="checkbox" id="attempt-one-only" />Attempt #1 only</label
+      >
+      <label
+        >Count limit
+        <input
+          type="number"
+          id="count-limit"
+          value="100"
+          min="0"
+          max="600"
+          step="50"
+        />
+      </label>
+      <label
+        >Search
+        <input type="text" id="search-input" placeholder="Enter RegExp..." />
+      </label>
+    </section>
+    <section class="controls">
+      <label>
+        Repository
+        <select id="repository-select">
+          <option selected>Kong/konnect-ui-apps</option>
+          <option>Kong/public-ui-components</option>
+          <option>Kong/shared-ui-components</option>
+          <option>Kong/kongponents</option>
+          <option>Kong/kong-admin</option>
+          <option>Kong/kong-manager</option>
+        </select>
+      </label>
+      <button id="refresh-button">Refresh</button>
+    </section>
+    <main>
+      <div id="chart-container"></div>
+      <div id="failure-rate"></div>
+      <div class="loader">
+        <div></div>
+        <div></div>
+      </div>
+    </main>
+    <dialog id="pat">
+      <form method="dialog">
+        <p>
+          Please provide a valid GitHub Personal Access Token (PAT). You can
+          create one at
+          <a
+            href="https://github.com/settings/tokens/new?scopes=repo_deployment"
+            target="_blank"
+            >GitHub</a
+          >.
+        </p>
+        <div class="actions">
+          <input
+            type="text"
+            id="github-token-input"
+            placeholder="Enter your GitHub PAT"
+            autofocus
+            required
+          />
+          <button type="submit">Save</button>
+        </div>
+      </form>
+    </dialog>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
