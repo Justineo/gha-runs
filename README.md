@@ -13,3 +13,7 @@ The trend of GitHub Action runs in Kong Gateway Manager related repositories.
 - [Kong/kongponents](https://github.com/Kong/kongponents)
 - [Kong/kong-admin](https://github.com/Kong/kong-admin)
 - [Kong/kong-manager](https://github.com/Kong/kong-manager)
+
+## Credit
+
+GitHub Copilot and ChatGPT wrote most of the code for this project.
