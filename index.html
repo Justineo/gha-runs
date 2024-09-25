@@ -66,7 +66,10 @@
     <main>
       <div id="chart-container"></div>
       <div id="stats">
-        <div id="failure-rate" title="The % of runs that did not succeed on attempt #1 out of all successful or failed runs."></div>
+        <div
+          id="failure-rate"
+          title="The % of runs that did not succeed on attempt #1 out of all successful or failed runs."
+        ></div>
       </div>
       <div class="loader">
         <div></div>
@@ -74,21 +77,45 @@
       </div>
     </main>
     <dialog id="pat">
+      <h2>Access Token</h2>
       <form method="dialog">
         <p>
-          Please provide a valid GitHub Personal Access Token (PAT). You can
-          create one at GitHub
-          <a
-            href="https://github.com/settings/tokens/new?scopes=repo"
-            target="_blank"
-            >here</a
+          Please provide a valid GitHub
+          <a href="https://github.com/settings/tokens" target="_blank"
+            >Personal Access Token</a
           >.
         </p>
+        <section class="note">
+          <ul>
+            <li>
+              For classic tokens (<a
+                href="https://github.com/settings/tokens/new?scopes=repo"
+                target="_blank"
+                >create</a
+              >), please ensure you provide at least the
+              <code>repo</code> scope.
+            </li>
+            <li>
+              For fine-grained tokens (<a
+                href="https://github.com/settings/personal-access-tokens/new"
+                target="_blank"
+                >create</a
+              >), please ensure you
+              <ol>
+                <li>Set the "Resource owner" as Kong.</li>
+                <li>Select all the required repositories (or
+              just choose "All repositories") and grant the "Read-only" access
+              for Actions in Repository permissions.
+              </li>
+              </ol>
+            </li>
+          </ul>
+        </section>
         <div class="actions">
           <input
             type="text"
             id="github-token-input"
-            placeholder="Enter your GitHub PAT"
+            placeholder="Enter your GitHub access token..."
             autofocus
             required
           />

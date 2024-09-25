@@ -9,6 +9,8 @@ body {
   padding: 0;
   background-color: #fff;
   font-size: 14px;
+  hyphens: auto;
+  text-rendering: optimizeLegibility;
 }
 h1 {
   margin-bottom: 24px;
@@ -25,11 +27,35 @@ h1 + .desc {
   font-size: 12px;
   color: #666;
 }
+h2 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+code {
+  font-family: monospace;
+  background-color: #f5f5f5;
+  padding: 1px 2px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  color: #333;
+  border: 1px solid #ccc;
+}
 dl {
   display: flex;
 }
 dd {
   margin-left: 4px;
+}
+ul,
+ol,
+li {
+  margin: 0;
+}
+ul,
+ol {
+  padding-left: 16px;
 }
 button {
   padding: 4px 8px;
@@ -62,7 +88,8 @@ label:hover {
   background-color: #e0e0e0;
   border-color: #bbb;
 }
-button {
+button,
+input {
   font: inherit;
 }
 input[type="text"],
@@ -100,13 +127,14 @@ dialog {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
   background-color: #fff;
-  max-width: 500px;
-  width: 100%;
+  width: 560px;
+  max-width: 90vw;
   margin: 0 auto;
   position: absolute;
   top: 38.2%;
   transform: translateY(-38.2%);
   animation: dialog-appear 0.3s ease-out;
+  line-height: 1.6;
 }
 dialog::backdrop {
   background-color: rgba(0, 0, 0, 0.5);
@@ -115,10 +143,24 @@ dialog input[type="text"],
 dialog button {
   padding: 4px 8px;
 }
+dialog p {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: #333;
+}
+dialog .note {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: #333; /* Neutral dark text color */
+  background: #f5f5f5; /* Light neutral background */
+  padding: 8px;
+  border-left: 4px solid #ccc; /* Neutral border color */
+  border-radius: 4px;
+}
 dialog .actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
 }
 dialog .actions input {
   flex-grow: 1;
