@@ -165,6 +165,14 @@ dialog .actions {
 dialog .actions input {
   flex-grow: 1;
 }
+dialog .actions input,
+dialog .actions button {
+  height: 28px;
+}
+dialog input:not(:placeholder-shown) {
+  font-family: monospace;
+  font-size: 12px;
+}
 
 @keyframes dialog-appear {
   from {
