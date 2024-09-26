@@ -132,6 +132,7 @@ async function fetchRuns(force = false) {
 
   async function fetchAllPages() {
     const results = await Promise.all(pages.map(fetchPage));
+    updateTimeElement.textContent = new Date().toLocaleString();
     const runs = results.flat();
     if (config.workflow) {
       return runs.filter((run) => run.name === config.workflow);
@@ -209,7 +210,6 @@ function parseRunData(run) {
 
 async function loadData() {
   data = (await fetchRuns()).map(parseRunData);
-  updateTimeElement.textContent = new Date().toLocaleString();
 }
 
 function filterData() {
