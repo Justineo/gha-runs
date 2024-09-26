@@ -101,6 +101,7 @@ const tokenInput = document.getElementById("github-token-input");
 const dialog = document.getElementById("pat");
 
 const cachedRuns = {};
+let updateTime = null;
 
 async function fetchRuns(force = false) {
   if (!force && cachedRuns[repository]) {
@@ -132,7 +133,6 @@ async function fetchRuns(force = false) {
 
   async function fetchAllPages() {
     const results = await Promise.all(pages.map(fetchPage));
-    updateTimeElement.textContent = new Date().toLocaleString();
     const runs = results.flat();
     if (config.workflow) {
       return runs.filter((run) => run.name === config.workflow);
@@ -151,9 +151,13 @@ async function fetchRuns(force = false) {
           localStorage.setItem("GITHUB_TOKEN", GITHUB_TOKEN);
 
           try {
-            const runs = await fetchAllPages()
-            cachedRuns[repository] = runs;
-            resolve(runs);
+            const runs = await fetchAllPages();
+            const data = {
+              runs,
+              updateTime: new Date().toISOString(),
+            };
+            cachedRuns[repository] = data;
+            resolve(data);
           } catch (error) {
             console.error("Error fetching data:", error);
             resolve(await getTokenAndFetch());
@@ -174,8 +178,12 @@ async function fetchRuns(force = false) {
 
   try {
     const runs = await fetchAllPages();
-    cachedRuns[repository] = runs;
-    return runs;
+    const data = {
+      runs,
+      updateTime: new Date().toLocaleString(),
+    };
+    cachedRuns[repository] = data;
+    return data;
   } catch (error) {
     console.error("Error fetching data:", error);
     return await getTokenAndFetch();
@@ -209,7 +217,9 @@ function parseRunData(run) {
 }
 
 async function loadData() {
-  data = (await fetchRuns()).map(parseRunData);
+  const { updateTime: ut, runs } = await fetchRuns();
+  data = runs.map(parseRunData);
+  updateTime = ut;
 }
 
 function filterData() {
@@ -290,6 +300,8 @@ ${item.status} ${item.symbol}
     bar.appendChild(tooltip);
     chartContainer.appendChild(bar);
   });
+
+  updateTimeElement.textContent = updateTime;
 
   failureRateElement.textContent = `Failure Rate: ${
     failureRate == null ? "N/A" : `${(failureRate * 100).toFixed(1)}%`
