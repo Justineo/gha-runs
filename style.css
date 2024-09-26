@@ -210,7 +210,6 @@ dialog input:not(:placeholder-shown) {
   display: flex;
   align-items: flex-end;
   height: 320px;
-  border-left: 1px solid #999;
   border-bottom: 1px solid #999;
   padding: 0 4px;
   margin-top: 48px;
@@ -242,6 +241,10 @@ dialog input:not(:placeholder-shown) {
   justify-content: center;
   position: relative;
   height: 100%;
+  background: linear-gradient(0, #abc 0%, #abc0 100%);
+}
+.bar.odd {
+  background: linear-gradient(0, #add8e6 0%, #add8e600 100%);
 }
 .bar .bar-inner {
   opacity: 0.3;
@@ -263,10 +266,10 @@ dialog input:not(:placeholder-shown) {
   background: linear-gradient(135deg, #999999 0%, #666666 100%);
 }
 .bar:hover {
-  background: #f8f8f8;
+  background: linear-gradient(to top, #ccc, #ccc3);
 }
 .bar:hover .bar-inner {
-  background: gold;
+  background: #ffd700;
 }
 .bar:hover .bar-inner,
 .bar.attempt-1 .bar-inner {
@@ -322,7 +325,7 @@ dialog input:not(:placeholder-shown) {
 /* Loader */
 main {
   position: relative;
-  margin-bottom: 72px;
+  margin-bottom: 96px;
 }
 .loader {
   position: absolute;

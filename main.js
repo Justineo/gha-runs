@@ -229,7 +229,23 @@ function parseRunData(run) {
     (run.id === 10918116942 || run.id === 10860108600);
 
   const title = run.display_title;
-  return { id, title, url, duration, attempt, status, mark, symbol };
+
+  const start = new Date(2018, 10, 13);
+  start.setHours(0, 0, 0, 0);
+  const days = Math.floor((startTime - start) / (1000 * 60 * 60 * 24));
+
+  return {
+    id,
+    title,
+    url,
+    duration,
+    attempt,
+    status,
+    mark,
+    symbol,
+    startTime,
+    days,
+  };
 }
 
 async function refresh(force) {
@@ -299,6 +315,9 @@ function render() {
     if (item.mark) {
       bar.classList.add("mark");
     }
+    if (item.days % 2) {
+      bar.classList.add("odd");
+    }
 
     const barInner = document.createElement("div");
     barInner.classList.add("bar-inner");
@@ -308,6 +327,7 @@ function render() {
     tooltip.classList.add("tooltip");
     tooltip.innerHTML = `
 ID: ${item.id}<br>
+Start Time: ${item.startTime.toLocaleString()}<br>
 Duration: ${formatDuration(item.duration)}<br>
 Attempt: ${item.attempt}<br>
 ${item.status} ${item.symbol}
