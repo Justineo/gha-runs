@@ -16,53 +16,55 @@
       <dt>Last update:</dt>
       <dd><time id="update-time"></time></dd>
     </dl>
-    <section class="controls">
-      <label
-        ><input type="checkbox" id="filter-success" checked />Success</label
-      >
-      <label
-        ><input type="checkbox" id="filter-failure" checked />Failure</label
-      >
-      <label><input type="checkbox" id="filter-cancelled" />Cancelled</label>
-      <label><input type="checkbox" id="filter-pending" />Pending</label>
-      <label
-        ><input type="checkbox" id="filter-in-progress" />In Progress</label
-      >
-    </section>
-    <section class="controls">
-      <label
-        ><input type="checkbox" id="attempt-one-only" />Attempt #1 only</label
-      >
-      <label
-        >Count limit
-        <input
-          type="number"
-          id="count-limit"
-          value="100"
-          min="0"
-          max="600"
-          step="50"
-        />
-      </label>
-      <label
-        >Search
-        <input type="text" id="search-input" placeholder="Enter RegExp..." />
-      </label>
-    </section>
-    <section class="controls">
-      <label>
-        Repository
-        <select id="repository-select">
-          <option selected>Kong/konnect-ui-apps</option>
-          <option>Kong/public-ui-components</option>
-          <option>Kong/shared-ui-components</option>
-          <option>Kong/kongponents</option>
-          <option>Kong/kong-admin</option>
-          <option>Kong/kong-manager</option>
-        </select>
-      </label>
-      <button id="refresh-button">Refresh</button>
-    </section>
+    <fieldset id="controls-form">
+      <section class="controls">
+        <label
+          ><input type="checkbox" id="filter-success" checked />Success</label
+        >
+        <label
+          ><input type="checkbox" id="filter-failure" checked />Failure</label
+        >
+        <label><input type="checkbox" id="filter-cancelled" />Cancelled</label>
+        <label><input type="checkbox" id="filter-pending" />Pending</label>
+        <label
+          ><input type="checkbox" id="filter-in-progress" />In Progress</label
+        >
+      </section>
+      <section class="controls">
+        <label
+          ><input type="checkbox" id="attempt-one-only" />Attempt #1 only</label
+        >
+        <label
+          >Count limit
+          <input
+            type="number"
+            id="count-limit"
+            value="100"
+            min="0"
+            max="600"
+            step="50"
+          />
+        </label>
+        <label
+          >Search
+          <input type="text" id="search-input" placeholder="Enter RegExp..." />
+        </label>
+      </section>
+      <section class="controls">
+        <label>
+          Repository
+          <select id="repository-select">
+            <option selected>Kong/konnect-ui-apps</option>
+            <option>Kong/public-ui-components</option>
+            <option>Kong/shared-ui-components</option>
+            <option>Kong/kongponents</option>
+            <option>Kong/kong-admin</option>
+            <option>Kong/kong-manager</option>
+          </select>
+        </label>
+        <button id="refresh-button" type="button">Refresh</button>
+      </section>
+    </fieldset>
     <main>
       <div id="chart-container"></div>
       <div id="stats">
@@ -103,10 +105,11 @@
               >), please ensure you
               <ol>
                 <li>Set the "Resource owner" as Kong.</li>
-                <li>Select all the required repositories (or
-              just choose "All repositories") and grant the "Read-only" access
-              for Actions in Repository permissions.
-              </li>
+                <li>
+                  Select all the required repositories (or just choose "All
+                  repositories") and grant the "Read-only" access for Actions in
+                  Repository permissions.
+                </li>
               </ol>
             </li>
           </ul>

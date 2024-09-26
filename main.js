@@ -99,14 +99,27 @@ function buildHeaders() {
 
 const tokenInput = document.getElementById("github-token-input");
 const dialog = document.getElementById("pat");
+const controlsForm = document.getElementById("controls-form");
 
 const cachedRuns = {};
 let updateTime = null;
+
+function setLoading(loading) {
+  if (loading) {
+    document.body.classList.add("loading");
+    controlsForm.disabled = true;
+  } else {
+    document.body.classList.remove("loading");
+    controlsForm.disabled = false;
+  }
+}
 
 async function fetchRuns(force = false) {
   if (!force && cachedRuns[repository]) {
     return cachedRuns[repository];
   }
+
+  setLoading(true);
 
   const baseUrl = `https://api.github.com/repos/${repository}/actions/runs`;
   const config = REPO_CONFIG[repository];
@@ -158,12 +171,14 @@ async function fetchRuns(force = false) {
             };
             cachedRuns[repository] = data;
             resolve(data);
+            setLoading(false);
           } catch (error) {
             console.error("Error fetching data:", error);
             resolve(await getTokenAndFetch());
           }
         } else {
           resolve([]);
+          setLoading(false);
         }
       }
       dialog.addEventListener("close", handleClose);
@@ -183,6 +198,7 @@ async function fetchRuns(force = false) {
       updateTime: new Date().toLocaleString(),
     };
     cachedRuns[repository] = data;
+    setLoading(false);
     return data;
   } catch (error) {
     console.error("Error fetching data:", error);
@@ -216,10 +232,11 @@ function parseRunData(run) {
   return { id, title, url, duration, attempt, status, mark, symbol };
 }
 
-async function loadData() {
-  const { updateTime: ut, runs } = await fetchRuns();
+async function refresh(force) {
+  const { updateTime: ut, runs } = await fetchRuns(force);
   data = runs.map(parseRunData);
   updateTime = ut;
+  render();
 }
 
 function filterData() {
@@ -308,13 +325,6 @@ ${item.status} ${item.symbol}
   }`;
 }
 
-async function init() {
-  mainElement.classList.add("loading");
-  await loadData();
-  render();
-  mainElement.classList.remove("loading");
-}
-
 // Event Listeners
 function setupEventListeners() {
   Object.keys(statusFilters).forEach((status) => {
@@ -336,11 +346,11 @@ function setupEventListeners() {
 
   repositorySelect.addEventListener("change", () => {
     repository = repositorySelect.value;
-    init();
+    refresh();
   });
 
   refreshButton.addEventListener("click", () => {
-    init();
+    refresh(true);
   });
 
   searchInput.addEventListener("input", () => {
@@ -362,4 +372,4 @@ function setupEventListeners() {
 
 // Initialize
 setupEventListeners();
-init();
+refresh();
