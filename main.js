@@ -100,7 +100,13 @@ function buildHeaders() {
 const tokenInput = document.getElementById("github-token-input");
 const dialog = document.getElementById("pat");
 
-async function fetchRuns() {
+const cachedRuns = {};
+
+async function fetchRuns(force = false) {
+  if (!force && cachedRuns[repository]) {
+    return cachedRuns[repository];
+  }
+
   const baseUrl = `https://api.github.com/repos/${repository}/actions/runs`;
   const config = REPO_CONFIG[repository];
   const params = new URLSearchParams({
@@ -144,7 +150,9 @@ async function fetchRuns() {
           localStorage.setItem("GITHUB_TOKEN", GITHUB_TOKEN);
 
           try {
-            resolve(await fetchAllPages());
+            const runs = await fetchAllPages()
+            cachedRuns[repository] = runs;
+            resolve(runs);
           } catch (error) {
             console.error("Error fetching data:", error);
             resolve(await getTokenAndFetch());
@@ -164,7 +172,9 @@ async function fetchRuns() {
   }
 
   try {
-    return await fetchAllPages();
+    const runs = await fetchAllPages();
+    cachedRuns[repository] = runs;
+    return runs;
   } catch (error) {
     console.error("Error fetching data:", error);
     return await getTokenAndFetch();
@@ -246,8 +256,11 @@ function render() {
       : null;
 
   filteredData.forEach((item) => {
-    const bar = document.createElement("div");
+    const bar = document.createElement("a");
     bar.classList.add("bar", item.status.replace("_", "-"));
+    bar.title = item.title;
+    bar.href = item.url;
+    bar.target = "_blank";
     if (item.valid) {
       bar.classList.add("valid");
     } else {
@@ -267,13 +280,11 @@ function render() {
     const tooltip = document.createElement("div");
     tooltip.classList.add("tooltip");
     tooltip.innerHTML = `
-            ID: <a href="${item.url}" title="${encodeHTML(
-      item.title
-    )}" target="_blank">${item.id}</a><br>
-            Duration: ${formatDuration(item.duration)}<br>
-            Attempt: ${item.attempt}<br>
-            ${item.status} ${item.symbol}
-          `;
+ID: ${item.id}<br>
+Duration: ${formatDuration(item.duration)}<br>
+Attempt: ${item.attempt}<br>
+${item.status} ${item.symbol}
+`;
 
     bar.appendChild(barInner);
     bar.appendChild(tooltip);
