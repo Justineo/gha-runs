@@ -14,7 +14,7 @@
     <h1>Recent GitHub Actions Workflow runs</h1>
     <dl class="desc">
       <dt>Last update:</dt>
-      <dd><time id="update-time"></time></dd>
+      <dd><time id="update-time" class="value"></time></dd>
     </dl>
     <fieldset id="controls-form">
       <section class="controls">
@@ -67,12 +67,17 @@
     </fieldset>
     <main>
       <div id="chart-container"></div>
-      <div id="stats">
-        <div
-          id="failure-rate"
-          title="The % of runs that did not succeed on attempt #1 out of all successful or failed runs."
-        ></div>
-      </div>
+      <dl id="stats" class="desc">
+        <dt>Failure Rate:</dt>
+        <dd>
+          <span
+            id="failure-rate"
+            class="value"
+            title="The % of runs that did not succeed on attempt #1 out of all successful or failed runs."
+            >N/A</span
+          >
+        </dd>
+      </dl>
       <div class="loader">
         <div></div>
         <div></div>

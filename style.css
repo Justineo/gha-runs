@@ -173,6 +173,9 @@ dialog input:not(:placeholder-shown) {
   font-family: monospace;
   font-size: 12px;
 }
+.value {
+  font-variant-numeric: tabular-nums;
+}
 
 @keyframes dialog-appear {
   from {
@@ -218,6 +221,7 @@ dialog input:not(:placeholder-shown) {
   opacity: 0.5;
   filter: blur(4px);
   cursor: default;
+  transition: filter 0.2s, opacity 0.2s;
 }
 .loading .controls {
   opacity: 0.5;
@@ -382,7 +386,6 @@ main {
 #stats {
   display: flex;
   align-items: center;
-  gap: 8px;
   position: absolute;
   right: 0;
   bottom: calc(100% + 8px);

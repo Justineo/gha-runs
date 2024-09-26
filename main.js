@@ -320,7 +320,7 @@ ${item.status} ${item.symbol}
 
   updateTimeElement.textContent = updateTime;
 
-  failureRateElement.textContent = `Failure Rate: ${
+  failureRateElement.textContent = `${
     failureRate == null ? "N/A" : `${(failureRate * 100).toFixed(1)}%`
   }`;
 }
