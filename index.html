@@ -31,11 +31,12 @@
         >
       </section>
       <section class="controls">
-        <label
-          ><input type="checkbox" id="attempt-one-only" />Attempt #1 only</label
+        <label title="Show only runs completed on attempt #1"
+          ><input type="checkbox" id="attempt-one-only" />Attempt #1</label
         >
         <label
-          >Count limit
+          title="Limit the number of runs to display. Set to 0 to show all."
+          >Limit
           <input
             type="number"
             id="count-limit"
@@ -45,8 +46,13 @@
             step="50"
           />
         </label>
+        <label title="Show stripes to differentiate between days"
+          ><input type="checkbox" id="show-stripes" checked />Stripes</label
+        >
         <label
-          >Search
+          title="You can use RegExp to search for workflow run titles, like `gm|gateway-manager`"
+        >
+          Search
           <input type="text" id="search-input" placeholder="Enter RegExp..." />
         </label>
       </section>

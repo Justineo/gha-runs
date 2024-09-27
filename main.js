@@ -43,6 +43,7 @@ const statusFilters = {
 };
 const attemptOneOnlyCheckbox = document.getElementById("attempt-one-only");
 const countLimitInput = document.getElementById("count-limit");
+const showStripesCheckbox = document.getElementById("show-stripes");
 const repositorySelect = document.getElementById("repository-select");
 const refreshButton = document.getElementById("refresh-button");
 const searchInput = document.getElementById("search-input");
@@ -60,6 +61,7 @@ let showStatus = {
   in_progress: statusFilters.in_progress.checked,
 };
 let attemptOneOnly = attemptOneOnlyCheckbox.checked;
+let showStripes = showStripesCheckbox.checked;
 let runsToShow = parseInt(countLimitInput.value, 10) || 100;
 let searchRegExp = null;
 
@@ -75,18 +77,6 @@ function formatDuration(seconds) {
   if (minutes > 0) parts.push(`${minutes}m`);
   if (seconds > 0) parts.push(`${seconds}s`);
   return parts.join(" ");
-}
-
-function encodeHTML(str) {
-  const map = {
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;",
-    "`": "&#96;",
-  };
-  return str.replace(/[&<>"'`]/g, (match) => map[match]);
 }
 
 function buildHeaders() {
@@ -206,7 +196,7 @@ async function fetchRuns(force = false) {
   }
 }
 
-function parseRunData(run) {
+function extractRunData(run) {
   const id = run.id;
   const url = run.html_url;
   const startTime = new Date(run.run_started_at);
@@ -250,7 +240,7 @@ function parseRunData(run) {
 
 async function refresh(force) {
   const { updateTime: ut, runs } = await fetchRuns(force);
-  data = runs.map(parseRunData);
+  data = runs.map(extractRunData).sort((a, b) => b.startTime - a.startTime);
   updateTime = ut;
   render();
 }
@@ -274,7 +264,7 @@ function filterData() {
     return result;
   });
 
-  return filteredData.filter((item) => item.show).slice(0, runsToShow);
+  return filteredData.filter((item) => item.show).slice(0, runsToShow || undefined);
 }
 
 function render() {
@@ -345,6 +335,14 @@ ${item.status} ${item.symbol}
   }`;
 }
 
+function updateStripes() {
+  if (showStripes) {
+    mainElement.classList.add("stripes");
+  } else {
+    mainElement.classList.remove("stripes");
+  }
+}
+
 // Event Listeners
 function setupEventListeners() {
   Object.keys(statusFilters).forEach((status) => {
@@ -360,8 +358,13 @@ function setupEventListeners() {
   });
 
   countLimitInput.addEventListener("input", () => {
-    runsToShow = parseInt(countLimitInput.value, 10) || 100;
+    runsToShow = parseInt(countLimitInput.value, 10) || 0;
     render();
+  });
+
+  showStripesCheckbox.addEventListener("change", () => {
+    showStripes = showStripesCheckbox.checked;
+    updateStripes();
   });
 
   repositorySelect.addEventListener("change", () => {

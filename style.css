@@ -241,9 +241,11 @@ dialog input:not(:placeholder-shown) {
   justify-content: center;
   position: relative;
   height: 100%;
+}
+.stripes .bar {
   background: linear-gradient(0, #abc 0%, #abc0 100%);
 }
-.bar.odd {
+.stripes .bar.odd {
   background: linear-gradient(0, #add8e6 0%, #add8e600 100%);
 }
 .bar .bar-inner {
