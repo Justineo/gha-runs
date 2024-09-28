@@ -333,6 +333,8 @@ ${item.status} ${item.symbol}
   failureRateElement.textContent = `${
     failureRate == null ? "N/A" : `${(failureRate * 100).toFixed(1)}%`
   }`;
+  
+  updateStripes();
 }
 
 function updateStripes() {
