@@ -267,8 +267,9 @@ dialog input:not(:placeholder-shown) {
 .bar.cancelled .bar-inner {
   background: linear-gradient(135deg, #999999 0%, #666666 100%);
 }
-.bar:hover {
-  background: linear-gradient(to top, #ccc, #ccc3);
+.bar:hover,
+.bar.odd:hover {
+  background: linear-gradient(to top, #ffd70033, #ffd70011);
 }
 .bar:hover .bar-inner {
   background: #ffd700;
@@ -305,14 +306,13 @@ dialog input:not(:placeholder-shown) {
 .tooltip {
   display: none;
   position: absolute;
-  top: 100%;
+  top: calc(100% + 4px);
   background-color: rgba(0, 0, 0, 0.7);
   color: #fff;
   padding: 5px;
   white-space: nowrap;
   font-size: 12px;
   border-radius: 3px;
-  transform: translateY(-5px);
   z-index: 100;
 }
 .bar:hover .tooltip {

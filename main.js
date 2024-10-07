@@ -264,7 +264,9 @@ function filterData() {
     return result;
   });
 
-  return filteredData.filter((item) => item.show).slice(0, runsToShow || undefined);
+  return filteredData
+    .filter((item) => item.show)
+    .slice(0, runsToShow || undefined);
 }
 
 function render() {
@@ -288,6 +290,8 @@ function render() {
       ? (failureCount + successRerunCount) / (successCount + failureCount)
       : null;
 
+  let lastDays = null
+  let count = 0
   filteredData.forEach((item) => {
     const bar = document.createElement("a");
     bar.classList.add("bar", item.status.replace("_", "-"));
@@ -305,7 +309,11 @@ function render() {
     if (item.mark) {
       bar.classList.add("mark");
     }
-    if (item.days % 2) {
+    if (item.days !== lastDays) {
+      count++
+    }
+    lastDays = item.days
+    if (count % 2) {
       bar.classList.add("odd");
     }
 
@@ -333,7 +341,7 @@ ${item.status} ${item.symbol}
   failureRateElement.textContent = `${
     failureRate == null ? "N/A" : `${(failureRate * 100).toFixed(1)}%`
   }`;
-  
+
   updateStripes();
 }
 
