@@ -270,6 +270,15 @@ function filterData() {
 }
 
 function render() {
+  if (!document.startViewTransition) {
+    updateView();
+    return;
+  }
+
+  document.startViewTransition(() => updateView());
+}
+
+function updateView() {
   chartContainer.innerHTML = "";
   const filteredData = filterData();
   const maxDuration = Math.max(...filteredData.map((item) => item.duration));
@@ -290,8 +299,8 @@ function render() {
       ? (failureCount + successRerunCount) / (successCount + failureCount)
       : null;
 
-  let lastDays = null
-  let count = 0
+  let lastDays = null;
+  let count = 0;
   filteredData.forEach((item) => {
     const bar = document.createElement("a");
     bar.classList.add("bar", item.status.replace("_", "-"));
@@ -310,12 +319,13 @@ function render() {
       bar.classList.add("mark");
     }
     if (item.days !== lastDays) {
-      count++
+      count++;
     }
-    lastDays = item.days
+    lastDays = item.days;
     if (count % 2) {
       bar.classList.add("odd");
     }
+    bar.style.viewTransitionName = `bar-${item.id}`;
 
     const barInner = document.createElement("div");
     barInner.classList.add("bar-inner");

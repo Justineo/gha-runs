@@ -395,3 +395,19 @@ main {
   right: 0;
   bottom: calc(100% + 8px);
 }
+
+:root {
+  view-transition-name: none;
+}
+
+::view-transition-group(*) {
+  animation-duration: .2s;
+}
+
+::view-transition-new(*) {
+  height: 100%;
+}
+
+::view-transition-old(*) {
+  height: 100%;
+}
