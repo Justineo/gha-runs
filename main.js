@@ -278,6 +278,18 @@ function render() {
   document.startViewTransition(() => updateView());
 }
 
+function encodeHTML(raw) {
+  const encodeMap = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  };
+
+  return raw.replace(/[&<>"']/g, (m) => encodeMap[m]);
+}
+
 function updateView() {
   chartContainer.innerHTML = "";
   const filteredData = filterData();
@@ -304,7 +316,6 @@ function updateView() {
   filteredData.forEach((item) => {
     const bar = document.createElement("a");
     bar.classList.add("bar", item.status.replace("_", "-"));
-    bar.title = item.title;
     bar.href = item.url;
     bar.target = "_blank";
     if (item.valid) {
@@ -334,11 +345,12 @@ function updateView() {
     const tooltip = document.createElement("div");
     tooltip.classList.add("tooltip");
     tooltip.innerHTML = `
-ID: ${item.id}<br>
-Start Time: ${item.startTime.toLocaleString()}<br>
-Duration: ${formatDuration(item.duration)}<br>
-Attempt: ${item.attempt}<br>
-${item.status} ${item.symbol}
+<p class="title">${item.symbol} ${encodeHTML(item.title)}</p>
+<dl>
+  <dt class="duration">Duration</dt><dd>${formatDuration(item.duration)}</dd>
+  <dt class="started-at">Started At</dt><dd>${item.startTime.toLocaleString()}</dd>
+  <dt>Attempt</dt><dd>${item.attempt}</dd>
+</dl>
 `;
 
     bar.appendChild(barInner);
