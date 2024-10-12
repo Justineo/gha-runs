@@ -1,7 +1,5 @@
 import "./style.css";
-import { inject } from "@vercel/analytics";
-
-inject();
+import { getRelativeTimeString, encodeHTML } from "./utils"
 
 // Constants
 const MAX_DURATION = 12 * 60 * 60; // 12 hours in seconds
@@ -48,6 +46,8 @@ const repositorySelect = document.getElementById("repository-select");
 const refreshButton = document.getElementById("refresh-button");
 const searchInput = document.getElementById("search-input");
 const updateTimeElement = document.getElementById("update-time");
+const absoluteUpdateTimeElement = document.getElementById("absolute-update-time");
+const relativeUpdateTimeElement = document.getElementById("relative-update-time");
 const failureRateElement = document.getElementById("failure-rate");
 
 // State variables
@@ -157,7 +157,7 @@ async function fetchRuns(force = false) {
             const runs = await fetchAllPages();
             const data = {
               runs,
-              updateTime: new Date().toISOString(),
+              updateTime: new Date(),
             };
             cachedRuns[repository] = data;
             resolve(data);
@@ -185,7 +185,7 @@ async function fetchRuns(force = false) {
     const runs = await fetchAllPages();
     const data = {
       runs,
-      updateTime: new Date().toLocaleString(),
+      updateTime: new Date(),
     };
     cachedRuns[repository] = data;
     setLoading(false);
@@ -278,18 +278,6 @@ function render() {
   document.startViewTransition(() => updateView());
 }
 
-function encodeHTML(raw) {
-  const encodeMap = {
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;",
-  };
-
-  return raw.replace(/[&<>"']/g, (m) => encodeMap[m]);
-}
-
 function updateView() {
   chartContainer.innerHTML = "";
   const filteredData = filterData();
@@ -358,7 +346,8 @@ function updateView() {
     chartContainer.appendChild(bar);
   });
 
-  updateTimeElement.textContent = updateTime;
+  absoluteUpdateTimeElement.textContent = updateTime.toLocaleString();
+  relativeUpdateTimeElement.textContent = `(${getRelativeTimeString(updateTime)})`;
 
   failureRateElement.textContent = `${
     failureRate == null ? "N/A" : `${(failureRate * 100).toFixed(1)}%`
@@ -428,3 +417,10 @@ function setupEventListeners() {
 // Initialize
 setupEventListeners();
 refresh();
+
+// setup relative time polling
+setInterval(() => {
+  if (updateTime && !document.body.classList.contains("loading")) {
+    relativeUpdateTimeElement.textContent = `(${getRelativeTimeString(updateTime)})`;
+  }
+}, 1000);

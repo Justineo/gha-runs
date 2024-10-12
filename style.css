@@ -222,6 +222,9 @@ dialog input:not(:placeholder-shown) {
   cursor: default;
   transition: filter 0.2s, opacity 0.2s;
 }
+#relative-update-time {
+  opacity: 0.75;
+}
 .loading .controls {
   opacity: 0.5;
 }

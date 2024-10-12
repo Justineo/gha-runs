@@ -8,13 +8,18 @@
       href="https://kongponents.konghq.com/favicon.ico"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Recent GitHub Actions Workflow runs</title>
+    <title>GitHub Actions Workflow runs</title>
   </head>
   <body>
-    <h1>Recent GitHub Actions Workflow runs</h1>
+    <h1>GitHub Actions Workflow runs</h1>
     <dl class="desc">
       <dt>Last update:</dt>
-      <dd><time id="update-time" class="value"></time></dd>
+      <dd>
+        <time id="update-time" class="value">
+          <span id="absolute-update-time"></span>
+          <span id="relative-update-time"></span>
+        </time>
+      </dd>
     </dl>
     <fieldset id="controls-form">
       <section class="controls">
