@@ -35,8 +35,6 @@ body {
 .app-header {
   display: grid;
   gap: 18px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
 }
 .title-area {
   display: flex;
@@ -502,10 +500,10 @@ dialog input:not(:placeholder-shown) {
   border-radius: 4px 4px 0 0;
 }
 .stripes .bar {
-  background: linear-gradient(0, rgba(148, 163, 184, 0.16), transparent 76%);
+  background: linear-gradient(0, rgba(100, 116, 139, 0.36), transparent 80%);
 }
 .stripes .bar.odd {
-  background: linear-gradient(0, rgba(11, 107, 203, 0.12), transparent 76%);
+  background: linear-gradient(0, rgba(11, 107, 203, 0.32), transparent 80%);
 }
 .bar .bar-inner {
   opacity: 0.34;
@@ -676,6 +674,8 @@ main {
 #stats {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 2px 6px;
   position: absolute;
   right: 14px;
   bottom: calc(100% - 16px);
@@ -684,6 +684,12 @@ main {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+#stats dd {
+  margin-left: 0;
+}
+#stats dd:not(:last-child) {
+  margin-right: 6px;
 }
 
 @media (max-width: 720px) {

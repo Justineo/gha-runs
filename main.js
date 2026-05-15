@@ -8,6 +8,7 @@ const TOKEN_MODE_CLASSIC = "classic";
 const TOKEN_MODE_FINE_GRAINED = "fine-grained";
 const CLASSIC_TOKEN_STORAGE_KEY = "GITHUB_TOKEN";
 const FINE_GRAINED_TOKEN_STORAGE_PREFIX = "GITHUB_TOKEN:";
+const DURATION_PERCENTILES = [50, 75, 90, 95];
 const REPO_CONFIG = {
   "kong-konnect/konnect-ui-apps": {
     branch: "main",
@@ -54,6 +55,12 @@ const updateTimeElement = document.getElementById("update-time");
 const absoluteUpdateTimeElement = document.getElementById("absolute-update-time");
 const relativeUpdateTimeElement = document.getElementById("relative-update-time");
 const failureRateElement = document.getElementById("failure-rate");
+const durationPercentileElements = Object.fromEntries(
+  DURATION_PERCENTILES.map((percentile) => [
+    percentile,
+    document.getElementById(`duration-p${percentile}`),
+  ])
+);
 
 // State variables
 let tokenMode = getInitialTokenMode();
@@ -83,6 +90,25 @@ function formatDuration(seconds) {
   if (minutes > 0) parts.push(`${minutes}m`);
   if (seconds > 0) parts.push(`${seconds}s`);
   return parts.join(" ");
+}
+
+function calculateDurationPercentiles(items) {
+  const durations = items
+    .filter((item) => item.valid && Number.isFinite(item.duration))
+    .map((item) => item.duration)
+    .sort((a, b) => a - b);
+
+  return Object.fromEntries(
+    DURATION_PERCENTILES.map((percentile) => {
+      if (durations.length === 0) {
+        return [percentile, null];
+      }
+
+      const index = Math.ceil((percentile / 100) * durations.length) - 1;
+      const clampedIndex = Math.min(Math.max(index, 0), durations.length - 1);
+      return [percentile, durations[clampedIndex]];
+    })
+  );
 }
 
 function buildHeaders(token) {
@@ -509,6 +535,7 @@ function updateView() {
     successCount + failureCount !== 0
       ? (failureCount + successRerunCount) / (successCount + failureCount)
       : null;
+  const durationPercentiles = calculateDurationPercentiles(filteredData);
 
   let lastDays = null;
   let count = 0;
@@ -568,6 +595,11 @@ function updateView() {
   failureRateElement.textContent = `${
     failureRate == null ? "N/A" : `${(failureRate * 100).toFixed(1)}%`
   }`;
+  DURATION_PERCENTILES.forEach((percentile) => {
+    const duration = durationPercentiles[percentile];
+    durationPercentileElements[percentile].textContent =
+      duration == null ? "N/A" : formatDuration(duration);
+  });
 
   updateStripes();
 }
