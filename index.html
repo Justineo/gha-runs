@@ -11,71 +11,84 @@
     <title>GitHub Actions Workflow runs</title>
   </head>
   <body>
-    <h1>GitHub Actions Workflow runs</h1>
-    <dl class="desc">
-      <dt>Last update:</dt>
-      <dd>
-        <time id="update-time" class="value">
-          <span id="absolute-update-time"></span>
-          <span id="relative-update-time"></span>
-        </time>
-      </dd>
-    </dl>
-    <fieldset id="controls-form">
-      <section class="controls">
-        <label
-          ><input type="checkbox" id="filter-success" checked />Success</label
-        >
-        <label
-          ><input type="checkbox" id="filter-failure" checked />Failure</label
-        >
-        <label><input type="checkbox" id="filter-cancelled" />Cancelled</label>
-        <label><input type="checkbox" id="filter-pending" />Pending</label>
-        <label
-          ><input type="checkbox" id="filter-in-progress" />In Progress</label
-        >
-      </section>
-      <section class="controls">
-        <label title="Show only runs completed on attempt #1"
-          ><input type="checkbox" id="attempt-one-only" />Attempt #1</label
-        >
-        <label
-          title="Limit the number of runs to display. Set to 0 to show all."
-          >Limit
-          <input
-            type="number"
-            id="count-limit"
-            value="100"
-            min="0"
-            max="600"
-            step="50"
-          />
-        </label>
-        <label title="Show stripes to differentiate between days"
-          ><input type="checkbox" id="show-stripes" checked />Stripes</label
-        >
-        <label
-          title="You can use RegExp to search for workflow run titles, like `gm|gateway-manager`"
-        >
-          Search
-          <input type="text" id="search-input" placeholder="Enter RegExp..." />
-        </label>
-      </section>
-      <section class="controls">
-        <label>
-          Repository
-          <select id="repository-select">
-            <option selected>Kong/konnect-ui-apps</option>
-            <option>Kong/public-ui-components</option>
-            <option>Kong/shared-ui-components</option>
-            <option>Kong/kongponents</option>
-            <option>Kong/kong-admin</option>
-            <option>Kong/kong-manager</option>
-          </select>
-        </label>
-        <button id="refresh-button" type="button">Refresh</button>
-      </section>
-    </fieldset>
+    <header class="app-header">
+      <div class="title-area">
+        <h1>GitHub Actions Workflow runs</h1>
+        <dl class="desc">
+          <dt>Last update:</dt>
+          <dd>
+            <time id="update-time" class="value">
+              <span id="absolute-update-time"></span>
+              <span id="relative-update-time"></span>
+            </time>
+          </dd>
+        </dl>
+      </div>
+      <fieldset id="controls-form">
+        <section class="controls">
+          <label
+            ><input type="checkbox" id="filter-success" checked />Success</label
+          >
+          <label
+            ><input type="checkbox" id="filter-failure" checked />Failure</label
+          >
+          <label><input type="checkbox" id="filter-cancelled" />Cancelled</label>
+          <label><input type="checkbox" id="filter-pending" />Pending</label>
+          <label
+            ><input type="checkbox" id="filter-in-progress" />In Progress</label
+          >
+        </section>
+        <section class="controls">
+          <label title="Show only runs completed on attempt #1"
+            ><input type="checkbox" id="attempt-one-only" />Attempt #1</label
+          >
+          <label
+            title="Limit the number of runs to display. Set to 0 to show all."
+            >Limit
+            <input
+              type="number"
+              id="count-limit"
+              value="100"
+              min="0"
+              max="600"
+              step="50"
+            />
+          </label>
+          <label title="Show stripes to differentiate between days"
+            ><input type="checkbox" id="show-stripes" checked />Stripes</label
+          >
+          <label
+            title="You can use RegExp to search for workflow run titles, like `gm|gateway-manager`"
+          >
+            Search
+            <input type="text" id="search-input" placeholder="Enter RegExp..." />
+          </label>
+        </section>
+        <section class="controls controls-primary">
+          <label>
+            Repository
+            <select id="repository-select">
+              <option selected>kong-konnect/konnect-ui-apps</option>
+              <option>Kong/public-ui-components</option>
+              <option>Kong/shared-ui-components</option>
+              <option>Kong/kongponents</option>
+              <option>Kong/kong-admin</option>
+              <option>Kong/kong-manager</option>
+            </select>
+          </label>
+          <button id="refresh-button" class="button-primary" type="button">
+            Refresh
+          </button>
+          <button
+            id="token-settings-button"
+            class="button-secondary"
+            type="button"
+          >
+            Access Token
+          </button>
+        </section>
+      </fieldset>
+    </header>
     <main>
       <div id="chart-container"></div>
       <dl id="stats" class="desc">
@@ -96,49 +109,105 @@
     </main>
     <dialog id="pat">
       <h2>Access Token</h2>
-      <form method="dialog">
-        <p>
-          Please provide a valid GitHub
-          <a href="https://github.com/settings/tokens" target="_blank"
-            >Personal Access Token</a
-          >.
-        </p>
+      <form id="token-form" method="dialog">
+        <p id="github-token-error" class="token-error" hidden></p>
+        <fieldset class="token-mode" aria-label="Token type">
+          <legend>Token Type</legend>
+          <label class="token-mode-option">
+            <input
+              type="radio"
+              id="token-mode-fine-grained"
+              name="token-mode"
+              value="fine-grained"
+            />
+            Fine-grained
+          </label>
+          <label class="token-mode-option">
+            <input
+              type="radio"
+              id="token-mode-classic"
+              name="token-mode"
+              value="classic"
+            />
+            Classic
+          </label>
+        </fieldset>
+        <section id="classic-token-section" class="token-section">
+          <p>
+            Use one classic
+            <a
+              href="https://github.com/settings/tokens/new?scopes=repo"
+              target="_blank"
+              >Personal Access Token</a
+            >
+            with the <code>repo</code> scope and SSO access for every
+            organization you need.
+          </p>
+          <label class="token-field">
+            Classic token
+            <input
+              type="password"
+              id="classic-token-input"
+              placeholder="Enter classic GitHub access token..."
+              autocomplete="off"
+            />
+          </label>
+        </section>
+        <section id="fine-grained-token-section" class="token-section">
+          <p>
+            Use separate
+            <a
+              href="https://github.com/settings/personal-access-tokens/new"
+              target="_blank"
+              >fine-grained tokens</a
+            >
+            for each repository owner. If you only fill one owner, only that
+            owner's repositories will be available.
+          </p>
+          <label class="token-field">
+            kong-konnect
+            <input
+              type="password"
+              id="kong-konnect-token-input"
+              placeholder="Token for kong-konnect repositories..."
+              autocomplete="off"
+            />
+          </label>
+          <label class="token-field">
+            Kong
+            <input
+              type="password"
+              id="kong-token-input"
+              placeholder="Token for Kong repositories..."
+              autocomplete="off"
+            />
+          </label>
+        </section>
         <section class="note">
           <ul>
             <li>
-              For classic tokens (<a
-                href="https://github.com/settings/tokens/new?scopes=repo"
-                target="_blank"
-                >create</a
-              >), please ensure you provide at least the
-              <code>repo</code> scope.
+              Fine-grained tokens need read-only Actions access for the selected
+              repositories.
             </li>
-            <li>
-              For fine-grained tokens (<a
-                href="https://github.com/settings/personal-access-tokens/new"
-                target="_blank"
-                >create</a
-              >), please ensure you
-              <ol>
-                <li>Set the "Resource owner" as Kong.</li>
-                <li>
-                  Select all the required repositories (or just choose "All
-                  repositories") and grant the "Read-only" access for Actions in
-                  Repository permissions.
-                </li>
-              </ol>
-            </li>
+            <li>Use the Access Token button any time to switch token type.</li>
           </ul>
         </section>
         <div class="actions">
-          <input
-            type="text"
-            id="github-token-input"
-            placeholder="Enter your GitHub access token..."
-            autofocus
-            required
-          />
-          <button type="submit">Save</button>
+          <button
+            id="token-cancel-button"
+            class="button-secondary"
+            type="button"
+          >
+            Cancel
+          </button>
+          <button
+            id="token-save-button"
+            class="button-primary"
+            type="submit"
+            value="save"
+          >
+            Save
+          </button>
         </div>
       </form>
     </dialog>

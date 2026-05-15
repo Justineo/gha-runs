@@ -1,49 +1,82 @@
-/* Base styles */
+:root {
+  --bg: #f6f8fb;
+  --surface: #fff;
+  --surface-subtle: #f9fafb;
+  --border: #d8e0e8;
+  --border-strong: #b8c4d1;
+  --text: #111827;
+  --text-muted: #64748b;
+  --accent: #0b6bcb;
+  --accent-hover: #075aa9;
+  --accent-active: #064781;
+  --danger: #a13a2a;
+  --focus: rgba(11, 107, 203, 0.18);
+  --radius: 6px;
+  --control-height: 28px;
+  view-transition-name: none;
+}
+
 * {
   box-sizing: border-box;
 }
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  margin: 6vh 6vw 0;
-  padding: 0;
-  background-color: #fff;
+  margin: 0 auto;
+  padding: 32px clamp(20px, 4vw, 56px) 0;
+  max-width: 1320px;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
   font-size: 14px;
   hyphens: auto;
   text-rendering: optimizeLegibility;
 }
+.app-header {
+  display: grid;
+  gap: 18px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.title-area {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
 h1 {
-  margin-bottom: 24px;
   width: fit-content;
-  font-size: 28px;
-  font-weight: 600;
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.2;
+  font-weight: 650;
   background: linear-gradient(90deg, #003ab3 0%, #00b2bd 63.59%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-h1 + .desc {
-  margin-bottom: 48px;
+.desc {
+  margin: 0;
+  color: var(--text-muted);
   font-size: 12px;
-  color: #666;
 }
 h2 {
-  margin: 0 0 12px;
   font-size: 16px;
-  font-weight: 500;
-  color: #333;
+  font-weight: 650;
+  color: var(--text);
 }
 code {
   font-family: monospace;
-  background-color: #f5f5f5;
-  padding: 1px 2px;
+  background-color: var(--surface-subtle);
+  padding: 1px 4px;
   border-radius: 4px;
   font-size: 0.9em;
-  color: #333;
-  border: 1px solid #ccc;
+  color: var(--text);
+  border: 1px solid var(--border);
 }
 dl {
   display: flex;
+  align-items: center;
 }
 dd {
   margin-left: 4px;
@@ -58,116 +91,272 @@ ol {
   padding-left: 16px;
 }
 button {
-  padding: 4px 8px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--control-height);
+  padding: 0 10px;
+  background-color: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   cursor: pointer;
-  transition: background-color 0.2s;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s,
+    box-shadow 0.2s;
 }
-button:not(:disabled button):hover {
-  background-color: #0056b3;
+button:not(:disabled):hover {
+  background-color: var(--surface-subtle);
+  border-color: var(--border-strong);
 }
-button:not(:disabled button):active {
-  background-color: #004494;
+button:not(:disabled):active {
+  background-color: #eef3f8;
   box-shadow: none;
 }
-label {
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  gap: 2px;
-  padding: 2px 4px;
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  transition: background-color 0.2s, border-color 0.2s;
+button.button-primary {
+  color: #fff;
+  background-color: var(--accent);
+  border-color: var(--accent);
 }
-label:not(:disabled label):hover {
-  background-color: #e0e0e0;
-  border-color: #bbb;
+button.button-primary:not(:disabled):hover {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+button.button-primary:not(:disabled):active {
+  background-color: var(--accent-active);
+  border-color: var(--accent-active);
+}
+button.button-secondary {
+  color: var(--text);
+  background-color: var(--surface);
+  border-color: var(--border);
+}
+button.button-secondary:not(:disabled):hover {
+  background-color: var(--surface-subtle);
+  border-color: var(--border-strong);
+}
+button:disabled {
+  color: var(--text-muted);
+  background-color: var(--surface-subtle);
+  border-color: var(--border);
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus);
 }
 button,
-input {
+input,
+select {
   font: inherit;
 }
 input[type="text"],
 input[type="number"],
+input[type="password"],
 select {
-  padding: 2px 4px;
-  border: 1px solid #bbb;
-  border-radius: 4px;
+  height: var(--control-height);
+  padding: 0 8px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 13px;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 input[type="text"]:focus,
 input[type="number"]:focus,
+input[type="password"]:focus,
 select:focus {
-  border-color: #005bb5;
-  box-shadow: 0 0 0 2px rgba(0, 91, 181, 0.2);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus);
   outline: none;
 }
+input[type="checkbox"],
+input[type="radio"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent);
+}
 a {
-  color: #007bff;
+  color: var(--accent);
   text-decoration: none;
   transition: color 0.2s, text-shadow 0.2s;
 }
 a:hover {
-  color: #0056b3;
+  color: var(--accent-hover);
 }
 a:active {
-  color: #004494;
+  color: var(--accent-active);
 }
 p {
   margin-top: 0;
 }
 dialog {
   border: none;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  background-color: #fff;
-  width: 560px;
+  border-radius: 10px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.22);
+  padding: 0;
+  background-color: var(--surface);
+  width: 620px;
   max-width: 90vw;
   margin: 0 auto;
   position: absolute;
   top: 38.2%;
   transform: translateY(-38.2%);
   animation: dialog-appear 0.3s ease-out;
-  line-height: 1.6;
+  line-height: 1.5;
+  overflow: hidden;
 }
 dialog::backdrop {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(15, 23, 42, 0.42);
 }
 dialog input[type="text"],
+dialog input[type="password"],
 dialog button {
-  padding: 4px 8px;
+  height: 34px;
+}
+dialog h2 {
+  padding: 18px 22px 14px;
+  margin: 0;
+  border-bottom: 1px solid var(--border);
+}
+dialog form {
+  padding: 18px 22px 22px;
 }
 dialog p {
   margin: 0 0 16px;
   font-size: 14px;
-  color: #333;
+  color: var(--text);
 }
 dialog .note {
   margin: 0 0 16px;
   font-size: 13px;
-  color: #333; /* Neutral dark text color */
-  background: #f5f5f5; /* Light neutral background */
-  padding: 8px;
-  border-left: 4px solid #ccc; /* Neutral border color */
-  border-radius: 4px;
+  color: var(--text-muted);
+  background: var(--surface-subtle);
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+dialog .token-error {
+  padding: 8px 10px;
+  color: var(--danger);
+  background: #fff4f2;
+  border: 1px solid #efb7ad;
+  border-radius: var(--radius);
+}
+dialog .token-mode {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+dialog .token-mode legend {
+  grid-column: 1 / -1;
+  padding: 0;
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.2;
+  color: var(--text);
+}
+dialog .token-mode-option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  margin: 0;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 500;
+  line-height: 1;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s,
+    box-shadow 0.2s;
+}
+dialog .token-mode-option input {
+  position: absolute;
+  opacity: 0;
+}
+dialog .token-mode-option::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 2px var(--surface);
+}
+dialog .token-mode-option:has(input:checked) {
+  background: #f6fbff;
+  border-color: rgba(11, 107, 203, 0.56);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px rgba(11, 107, 203, 0.12);
+}
+dialog .token-mode-option:has(input:checked)::before {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+dialog .token-mode-option:has(input:focus-visible) {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus);
+}
+dialog .token-section[hidden] {
+  display: none;
+}
+dialog .token-section {
+  margin: 0 0 16px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+dialog .token-section p {
+  margin-bottom: 12px;
+  color: var(--text-muted);
+}
+dialog .token-field {
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 14px;
+  margin: 8px 0 0;
+  padding: 0;
+  white-space: normal;
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+dialog .token-field input {
+  width: 100%;
+  min-width: 0;
+  align-self: center;
+  font-weight: 400;
 }
 dialog .actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
+  padding-top: 2px;
 }
-dialog .actions input {
-  flex-grow: 1;
-}
-dialog .actions input,
 dialog .actions button {
-  height: 28px;
+  height: 34px;
 }
 dialog input:not(:placeholder-shown) {
   font-family: monospace;
@@ -190,29 +379,101 @@ dialog input:not(:placeholder-shown) {
 
 /* Controls */
 #controls-form {
-  display: contents;
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
 .controls {
   display: flex;
-  gap: 4px;
-  margin: 4px 0;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
   flex-wrap: wrap;
+  font-size: 13px;
+}
+.controls-primary {
+  padding-top: 2px;
+}
+.controls label {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-height);
+  gap: 7px;
+  padding: 0 8px;
+  color: var(--text);
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.controls label:hover {
+  background: var(--surface);
+  border-color: var(--border-strong);
+}
+.controls label:has(input[type="number"]),
+.controls label:has(input[type="text"]),
+.controls label:has(select) {
+  gap: 0;
+  padding: 0 0 0 8px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.controls label:has(input[type="number"]:focus),
+.controls label:has(input[type="text"]:focus),
+.controls label:has(select:focus) {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus);
 }
 .controls input[type="checkbox"],
-.controls input[type="number"],
-.controls select,
-.controls button {
-  margin-left: 2px;
+.controls input[type="radio"] {
+  margin: 0;
+}
+.controls label:has(input[type="number"]) input,
+.controls label:has(input[type="text"]) input,
+.controls label:has(select) select {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: calc(var(--control-height) - 2px);
+  margin-left: 8px;
+  background: transparent;
+  border: 0;
+  border-left: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+}
+.controls label:has(input[type="number"]:focus) input,
+.controls label:has(input[type="text"]:focus) input,
+.controls label:has(select:focus) select {
+  border-left-color: var(--accent);
+  outline: none;
+}
+.controls input[type="number"] {
+  width: 56px;
+}
+.controls input[type="text"] {
+  width: min(260px, 40vw);
+}
+.controls select {
+  min-width: 260px;
 }
 
 /* Chart container */
 #chart-container {
   display: flex;
   align-items: flex-end;
-  height: 320px;
-  border-bottom: 1px solid #999;
-  padding: 0 4px;
-  margin-top: 48px;
+  min-height: 360px;
+  height: min(48vh, 420px);
+  padding: 18px 14px 14px;
+  margin-top: 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  overflow: visible;
 }
 .loading #chart-container,
 .loading #stats,
@@ -225,12 +486,6 @@ dialog input:not(:placeholder-shown) {
 #relative-update-time {
   opacity: 0.75;
 }
-.loading .controls {
-  opacity: 0.5;
-}
-.loading .controls * {
-  cursor: default;
-}
 .loading #chart-container {
   pointer-events: none;
 }
@@ -238,44 +493,46 @@ dialog input:not(:placeholder-shown) {
 /* Bars */
 .bar {
   width: 20px;
-  margin: 0 0.5px;
+  margin: 0 1px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   position: relative;
   height: 100%;
+  border-radius: 4px 4px 0 0;
 }
 .stripes .bar {
-  background: linear-gradient(0, #abc 0%, #abc0 100%);
+  background: linear-gradient(0, rgba(148, 163, 184, 0.16), transparent 76%);
 }
 .stripes .bar.odd {
-  background: linear-gradient(0, #add8e6 0%, #add8e600 100%);
+  background: linear-gradient(0, rgba(11, 107, 203, 0.12), transparent 76%);
 }
 .bar .bar-inner {
-  opacity: 0.3;
+  opacity: 0.34;
   width: 100%;
+  border-radius: 4px 4px 0 0;
 }
 .bar.success .bar-inner {
-  background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+  background: #0b6bcb;
 }
 .bar.failure .bar-inner {
-  background: linear-gradient(135deg, #ff6a00 0%, #ee0979 100%);
+  background: #d64545;
 }
 .bar.pending .bar-inner {
-  background: linear-gradient(135deg, #ffdd00 0%, #ffaa00 100%);
+  background: #d99a00;
 }
 .bar.in-progress .bar-inner {
-  background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+  background: #7254c7;
 }
 .bar.cancelled .bar-inner {
-  background: linear-gradient(135deg, #999999 0%, #666666 100%);
+  background: #94a3b8;
 }
 .bar:hover,
 .bar.odd:hover {
-  background: linear-gradient(to top, #ffd70033, #ffd70011);
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.08), transparent);
 }
 .bar:hover .bar-inner {
-  background: #ffd700;
+  background: #111827;
 }
 .bar:hover .bar-inner,
 .bar.attempt-1 .bar-inner {
@@ -301,7 +558,7 @@ dialog input:not(:placeholder-shown) {
   content: "";
   width: 0;
   height: 100%;
-  border-left: 2px dashed #e0e0e0;
+  border-left: 2px dashed var(--border);
   z-index: -1;
 }
 
@@ -310,15 +567,16 @@ dialog input:not(:placeholder-shown) {
   display: none;
   position: absolute;
   top: calc(100% + 4px);
-  width: 12vw;
-  background-color: rgba(0, 0, 0, 0.7);
+  width: min(280px, 24vw);
+  background-color: rgba(17, 24, 39, 0.94);
   color: #fff;
-  padding: 5px;
+  padding: 8px;
   font-size: 12px;
-  border-radius: 3px;
+  border-radius: var(--radius);
   z-index: 100;
   text-overflow: ellipsis;
   overflow: hidden;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.24);
 }
 .tooltip .title {
   overflow: hidden;
@@ -353,6 +611,7 @@ dialog input:not(:placeholder-shown) {
 /* Loader */
 main {
   position: relative;
+  margin-top: 0;
   margin-bottom: 96px;
 }
 .loader {
@@ -418,12 +677,52 @@ main {
   display: flex;
   align-items: center;
   position: absolute;
-  right: 0;
-  bottom: calc(100% + 8px);
+  right: 14px;
+  bottom: calc(100% - 16px);
+  padding: 4px 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
-:root {
-  view-transition-name: none;
+@media (max-width: 720px) {
+  body {
+    padding: 24px 16px 0;
+  }
+
+  .title-area {
+    display: grid;
+    align-items: start;
+  }
+
+  .controls label,
+  .controls button,
+  .controls select,
+  .controls input[type="text"] {
+    width: 100%;
+  }
+
+  .controls select,
+  .controls input[type="text"] {
+    min-width: 0;
+  }
+
+  dialog {
+    top: 24px;
+    transform: none;
+    width: calc(100vw - 32px);
+    max-width: none;
+  }
+
+  dialog .token-field {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  #chart-container {
+    min-height: 300px;
+  }
 }
 
 ::view-transition-group(*) {

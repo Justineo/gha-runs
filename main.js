@@ -3,8 +3,13 @@ import { getRelativeTimeString, encodeHTML } from "./utils"
 
 // Constants
 const MAX_DURATION = 12 * 60 * 60; // 12 hours in seconds
+const TOKEN_MODE_STORAGE_KEY = "GITHUB_TOKEN_MODE";
+const TOKEN_MODE_CLASSIC = "classic";
+const TOKEN_MODE_FINE_GRAINED = "fine-grained";
+const CLASSIC_TOKEN_STORAGE_KEY = "GITHUB_TOKEN";
+const FINE_GRAINED_TOKEN_STORAGE_PREFIX = "GITHUB_TOKEN:";
 const REPO_CONFIG = {
-  "Kong/konnect-ui-apps": {
+  "kong-konnect/konnect-ui-apps": {
     branch: "main",
   },
   "Kong/public-ui-components": {
@@ -25,9 +30,8 @@ const REPO_CONFIG = {
     branch: "main",
   },
 };
-
-// Gloabal
-let GITHUB_TOKEN = "";
+const REPOSITORIES = Object.keys(REPO_CONFIG);
+const REPOSITORY_OWNERS = [...new Set(REPOSITORIES.map(getRepositoryOwner))];
 
 // DOM Elements
 const chartContainer = document.getElementById("chart-container");
@@ -44,6 +48,7 @@ const countLimitInput = document.getElementById("count-limit");
 const showStripesCheckbox = document.getElementById("show-stripes");
 const repositorySelect = document.getElementById("repository-select");
 const refreshButton = document.getElementById("refresh-button");
+const tokenSettingsButton = document.getElementById("token-settings-button");
 const searchInput = document.getElementById("search-input");
 const updateTimeElement = document.getElementById("update-time");
 const absoluteUpdateTimeElement = document.getElementById("absolute-update-time");
@@ -51,7 +56,8 @@ const relativeUpdateTimeElement = document.getElementById("relative-update-time"
 const failureRateElement = document.getElementById("failure-rate");
 
 // State variables
-let repository = repositorySelect.value;
+let tokenMode = getInitialTokenMode();
+let repository = repositorySelect.value || REPOSITORIES[0];
 let data = [];
 let showStatus = {
   success: statusFilters.success.checked,
@@ -79,63 +85,274 @@ function formatDuration(seconds) {
   return parts.join(" ");
 }
 
-function buildHeaders() {
+function buildHeaders(token) {
   return {
     Accept: "application/vnd.github+json",
-    Authorization: `Bearer ${GITHUB_TOKEN}`,
+    Authorization: `Bearer ${token}`,
     "X-GitHub-Api-Version": "2022-11-28",
   };
 }
 
-const tokenInput = document.getElementById("github-token-input");
+const tokenErrorElement = document.getElementById("github-token-error");
 const dialog = document.getElementById("pat");
+const tokenForm = document.getElementById("token-form");
+const tokenModeInputs = {
+  [TOKEN_MODE_FINE_GRAINED]: document.getElementById("token-mode-fine-grained"),
+  [TOKEN_MODE_CLASSIC]: document.getElementById("token-mode-classic"),
+};
+const tokenSections = {
+  [TOKEN_MODE_FINE_GRAINED]: document.getElementById("fine-grained-token-section"),
+  [TOKEN_MODE_CLASSIC]: document.getElementById("classic-token-section"),
+};
+const tokenCancelButton = document.getElementById("token-cancel-button");
+const tokenSaveButton = document.getElementById("token-save-button");
+const classicTokenInput = document.getElementById("classic-token-input");
+const fineGrainedTokenInputs = {
+  "kong-konnect": document.getElementById("kong-konnect-token-input"),
+  Kong: document.getElementById("kong-token-input"),
+};
 const controlsForm = document.getElementById("controls-form");
 
-const cachedRuns = {};
+let cachedRuns = {};
 let updateTime = null;
 
 function setLoading(loading) {
   if (loading) {
     document.body.classList.add("loading");
-    controlsForm.disabled = true;
   } else {
     document.body.classList.remove("loading");
-    controlsForm.disabled = false;
   }
 }
 
+function getRepositoryOwner(repo) {
+  return repo.split("/")[0];
+}
+
+function normalizeTokenMode(mode) {
+  return mode === TOKEN_MODE_CLASSIC ? TOKEN_MODE_CLASSIC : TOKEN_MODE_FINE_GRAINED;
+}
+
+function getInitialTokenMode() {
+  const storedMode = localStorage.getItem(TOKEN_MODE_STORAGE_KEY);
+  if (storedMode) {
+    return normalizeTokenMode(storedMode);
+  }
+  return localStorage.getItem(CLASSIC_TOKEN_STORAGE_KEY)
+    ? TOKEN_MODE_CLASSIC
+    : TOKEN_MODE_FINE_GRAINED;
+}
+
+function setTokenMode(mode) {
+  tokenMode = normalizeTokenMode(mode);
+  localStorage.setItem(TOKEN_MODE_STORAGE_KEY, tokenMode);
+}
+
+function getFineGrainedTokenStorageKey(owner) {
+  return `${FINE_GRAINED_TOKEN_STORAGE_PREFIX}${owner}`;
+}
+
+function getClassicToken() {
+  return localStorage.getItem(CLASSIC_TOKEN_STORAGE_KEY) || "";
+}
+
+function getFineGrainedToken(owner) {
+  return localStorage.getItem(getFineGrainedTokenStorageKey(owner)) || "";
+}
+
+function storeToken(storageKey, token) {
+  if (token) {
+    localStorage.setItem(storageKey, token);
+  } else {
+    localStorage.removeItem(storageKey);
+  }
+}
+
+function getTokenForRepository(repo) {
+  if (!repo) return "";
+  if (tokenMode === TOKEN_MODE_CLASSIC) {
+    return getClassicToken();
+  }
+  return getFineGrainedToken(getRepositoryOwner(repo));
+}
+
+function clearTokenForRepository(repo) {
+  if (tokenMode === TOKEN_MODE_CLASSIC) {
+    localStorage.removeItem(CLASSIC_TOKEN_STORAGE_KEY);
+    return;
+  }
+  localStorage.removeItem(
+    getFineGrainedTokenStorageKey(getRepositoryOwner(repo))
+  );
+}
+
+function getAvailableRepositories() {
+  if (tokenMode === TOKEN_MODE_CLASSIC) {
+    return getClassicToken() ? REPOSITORIES : [];
+  }
+  return REPOSITORIES.filter((repo) =>
+    Boolean(getFineGrainedToken(getRepositoryOwner(repo)))
+  );
+}
+
+function renderRepositoryOptions() {
+  const availableRepositories = getAvailableRepositories();
+  repositorySelect.innerHTML = "";
+
+  if (availableRepositories.length === 0) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "No repositories available";
+    repositorySelect.appendChild(option);
+    repositorySelect.disabled = true;
+    refreshButton.disabled = true;
+    repository = "";
+    return false;
+  }
+
+  if (!availableRepositories.includes(repository)) {
+    repository = availableRepositories[0];
+  }
+
+  availableRepositories.forEach((repo) => {
+    const option = document.createElement("option");
+    option.value = repo;
+    option.textContent = repo;
+    option.selected = repo === repository;
+    repositorySelect.appendChild(option);
+  });
+
+  repositorySelect.disabled = false;
+  refreshButton.disabled = false;
+  return true;
+}
+
+function updateTokenSections() {
+  Object.entries(tokenSections).forEach(([mode, section]) => {
+    section.hidden = tokenModeInputs[mode].checked === false;
+  });
+}
+
+function getActiveTokenInputs() {
+  if (tokenModeInputs[TOKEN_MODE_CLASSIC].checked) {
+    return [classicTokenInput];
+  }
+  return REPOSITORY_OWNERS.map((owner) => fineGrainedTokenInputs[owner]);
+}
+
+function submitTokenDialog() {
+  tokenSaveButton.click();
+}
+
+function moveToNextTokenInput(currentInput) {
+  const tokenInputs = getActiveTokenInputs();
+  const currentIndex = tokenInputs.indexOf(currentInput);
+  if (currentIndex === -1) return false;
+
+  const nextInput = tokenInputs[currentIndex + 1];
+  if (nextInput) {
+    nextInput.focus();
+    nextInput.select();
+  } else {
+    submitTokenDialog();
+  }
+  return true;
+}
+
+function populateTokenDialog(errorMessage = "") {
+  tokenModeInputs[tokenMode].checked = true;
+  classicTokenInput.value = getClassicToken();
+  REPOSITORY_OWNERS.forEach((owner) => {
+    fineGrainedTokenInputs[owner].value = getFineGrainedToken(owner);
+  });
+  tokenErrorElement.hidden = !errorMessage;
+  tokenErrorElement.textContent = errorMessage;
+  updateTokenSections();
+}
+
+function saveTokenSettings() {
+  const selectedMode = tokenForm.elements["token-mode"].value;
+  setTokenMode(selectedMode);
+  storeToken(CLASSIC_TOKEN_STORAGE_KEY, classicTokenInput.value.trim());
+  REPOSITORY_OWNERS.forEach((owner) => {
+    storeToken(
+      getFineGrainedTokenStorageKey(owner),
+      fineGrainedTokenInputs[owner].value.trim()
+    );
+  });
+  cachedRuns = {};
+  renderRepositoryOptions();
+}
+
+function openTokenDialog(errorMessage = "") {
+  return new Promise((resolve) => {
+    populateTokenDialog(errorMessage);
+
+    function handleClose() {
+      dialog.removeEventListener("close", handleClose);
+      if (dialog.returnValue === "save") {
+        saveTokenSettings();
+        resolve(true);
+      } else {
+        resolve(false);
+      }
+    }
+
+    dialog.addEventListener("close", handleClose);
+    dialog.showModal();
+  });
+}
+
+function emptyRunsData() {
+  return {
+    runs: [],
+    updateTime: new Date(),
+  };
+}
+
 async function fetchRuns(force = false) {
+  if (!repository) {
+    const configured = await openTokenDialog(
+      "Configure access tokens to choose repositories."
+    );
+    if (!configured || !renderRepositoryOptions()) {
+      return emptyRunsData();
+    }
+  }
+
   if (!force && cachedRuns[repository]) {
     return cachedRuns[repository];
   }
 
   setLoading(true);
 
-  const baseUrl = `https://api.github.com/repos/${repository}/actions/runs`;
-  const config = REPO_CONFIG[repository];
-  const params = new URLSearchParams({
-    branch: config.branch,
-    event: "push",
-    per_page: "100",
-  });
   const pages = [1, 2, 3, 4, 5, 6];
 
-  async function fetchPage(page) {
+  async function fetchPage(repo, page, token, params) {
     params.set("page", page.toString());
-    const url = `${baseUrl}?${params.toString()}`;
+    const url = `https://api.github.com/repos/${repo}/actions/runs?${params.toString()}`;
     const response = await fetch(url, {
-      headers: buildHeaders(),
+      headers: buildHeaders(token),
       cache: "no-store",
     });
     if (!response.ok) {
-      throw new Error(`Error fetching page ${page}: ${response.statusText}`);
+      throw new Error(
+        `Error fetching page ${page}: ${response.status} ${response.statusText}`
+      );
     }
     const data = await response.json();
     return data.workflow_runs || [];
   }
 
-  async function fetchAllPages() {
-    const results = await Promise.all(pages.map(fetchPage));
+  async function fetchAllPages(repo, token) {
+    const config = REPO_CONFIG[repo];
+    const params = new URLSearchParams({
+      branch: config.branch,
+      event: "push",
+      per_page: "100",
+    });
+    const results = await Promise.all(
+      pages.map((page) => fetchPage(repo, page, token, params))
+    );
     const runs = results.flat();
     if (config.workflow) {
       return runs.filter((run) => run.name === config.workflow);
@@ -143,56 +360,50 @@ async function fetchRuns(force = false) {
     return runs;
   }
 
-  async function getTokenAndFetch() {
-    return new Promise((resolve) => {
-      dialog.showModal();
-
-      async function handleClose() {
-        dialog.removeEventListener("close", handleClose);
-        if (tokenInput && tokenInput.value) {
-          GITHUB_TOKEN = tokenInput.value;
-          localStorage.setItem("GITHUB_TOKEN", GITHUB_TOKEN);
-
-          try {
-            const runs = await fetchAllPages();
-            const data = {
-              runs,
-              updateTime: new Date(),
-            };
-            cachedRuns[repository] = data;
-            resolve(data);
-            setLoading(false);
-          } catch (error) {
-            console.error("Error fetching data:", error);
-            resolve(await getTokenAndFetch());
-          }
-        } else {
-          resolve([]);
-          setLoading(false);
-        }
-      }
-      dialog.addEventListener("close", handleClose);
-    });
-  }
-
-  GITHUB_TOKEN = localStorage.getItem("GITHUB_TOKEN") || "";
-
-  if (!GITHUB_TOKEN) {
-    return getTokenAndFetch();
-  }
-
-  try {
-    const runs = await fetchAllPages();
-    const data = {
+  function createRunsData(runs) {
+    return {
       runs,
       updateTime: new Date(),
     };
-    cachedRuns[repository] = data;
+  }
+
+  try {
+    let token = getTokenForRepository(repository);
+
+    while (true) {
+      if (!token) {
+        const configured = await openTokenDialog(
+          `Configure an access token to view ${repository}.`
+        );
+        if (!configured || !renderRepositoryOptions()) {
+          return emptyRunsData();
+        }
+        token = getTokenForRepository(repository);
+      }
+
+      if (!token) {
+        return emptyRunsData();
+      }
+
+      try {
+        const data = createRunsData(await fetchAllPages(repository, token));
+        cachedRuns[repository] = data;
+        return data;
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        const failedRepository = repository;
+        clearTokenForRepository(failedRepository);
+        const configured = await openTokenDialog(
+          `The saved token could not access ${failedRepository}. Update the token settings and make sure the selected token has read-only Actions access and SSO authorization if required.`
+        );
+        if (!configured || !renderRepositoryOptions()) {
+          return emptyRunsData();
+        }
+        token = getTokenForRepository(repository);
+      }
+    }
+  } finally {
     setLoading(false);
-    return data;
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    return await getTokenAndFetch();
   }
 }
 
@@ -281,7 +492,7 @@ function render() {
 function updateView() {
   chartContainer.innerHTML = "";
   const filteredData = filterData();
-  const maxDuration = Math.max(...filteredData.map((item) => item.duration));
+  const maxDuration = Math.max(...filteredData.map((item) => item.duration), 1);
 
   const successCount = filteredData.filter(
     (item) => item.status === "success"
@@ -346,8 +557,13 @@ function updateView() {
     chartContainer.appendChild(bar);
   });
 
-  absoluteUpdateTimeElement.textContent = updateTime.toLocaleString();
-  relativeUpdateTimeElement.textContent = `(${getRelativeTimeString(updateTime)})`;
+  if (updateTime) {
+    absoluteUpdateTimeElement.textContent = updateTime.toLocaleString();
+    relativeUpdateTimeElement.textContent = `(${getRelativeTimeString(updateTime)})`;
+  } else {
+    absoluteUpdateTimeElement.textContent = "N/A";
+    relativeUpdateTimeElement.textContent = "";
+  }
 
   failureRateElement.textContent = `${
     failureRate == null ? "N/A" : `${(failureRate * 100).toFixed(1)}%`
@@ -397,6 +613,42 @@ function setupEventListeners() {
     refresh(true);
   });
 
+  tokenSettingsButton.addEventListener("click", async () => {
+    const saved = await openTokenDialog();
+    if (saved) {
+      if (repository) {
+        refresh(true);
+      } else {
+        data = [];
+        updateTime = null;
+        render();
+      }
+    }
+  });
+
+  Object.values(tokenModeInputs).forEach((input) => {
+    input.addEventListener("change", updateTokenSections);
+  });
+
+  tokenCancelButton.addEventListener("click", () => {
+    dialog.close("cancel");
+  });
+
+  tokenForm.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter") return;
+
+    if (e.metaKey) {
+      e.preventDefault();
+      submitTokenDialog();
+      return;
+    }
+
+    if (e.target instanceof HTMLInputElement && e.target.type === "password") {
+      e.preventDefault();
+      moveToNextTokenInput(e.target);
+    }
+  });
+
   searchInput.addEventListener("input", () => {
     const query = searchInput.value;
     try {
@@ -416,6 +668,7 @@ function setupEventListeners() {
 
 // Initialize
 setupEventListeners();
+renderRepositoryOptions();
 refresh();
 
 // setup relative time polling

@@ -3,11 +3,13 @@
 The trend of GitHub Action runs in Kong Gateway Manager related repositories.
 
 > [!IMPORTANT]
-> You are required to provide a valid GitHub Personal Access Token (PAT) to use this. You can create one [here](https://github.com/settings/tokens/new?scopes=repo_deployment).
+> You are required to provide valid GitHub Personal Access Tokens (PATs) to use this. You can create classic tokens [here](https://github.com/settings/tokens/new?scopes=repo).
+>
+> Use the Access Token control to choose either a classic token or fine-grained tokens. Classic mode uses one token with the `repo` scope and SSO access for every organization you need. Fine-grained mode uses one token for `kong-konnect` and one for `Kong`, each with read-only Actions access to the repositories you use. If you only fill one fine-grained token, only that owner's repositories are available.
 
 ## Supported Repositories
 
-- [Kong/konnect-ui-apps](https://github.com/Kong/konnect-ui-apps)
+- [kong-konnect/konnect-ui-apps](https://github.com/kong-konnect/konnect-ui-apps)
 - [Kong/public-ui-components](https://github.com/Kong/public-ui-components)
 - [Kong/shared-ui-components](https://github.com/Kong/shared-ui-components)
 - [Kong/kongponents](https://github.com/Kong/kongponents)
